@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.signup-input {
+  @apply min-w-[20vw] focus:bg-[#eee];
+}

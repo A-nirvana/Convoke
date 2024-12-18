@@ -1,3 +1,9 @@
+# Ignore node_modules in all subfolders
+**/node_modules/
+
+# Ignore dist folders in all subfolders
+**/dist/
+
 # Logs
 logs
 *.log
