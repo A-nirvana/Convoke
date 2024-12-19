@@ -2,9 +2,9 @@ import { Request, Response } from "express"
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import { User } from "../models";
-import { generateToken, cloud } from "../lib";
-import { Users } from "../models/user.model";
+import { User } from "../models/index.js"
+import { generateToken, cloud } from "../lib/index.js";
+import { Users } from "../models/user.model.js";
 
 declare global {
     namespace Express {

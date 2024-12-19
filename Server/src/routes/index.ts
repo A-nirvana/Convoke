@@ -1,4 +1,4 @@
-import { authRouter} from "./auth.routes";
-import { messageRouter } from "./message.routes";
+import { authRouter} from "./auth.routes.js";
+import { messageRouter } from "./message.routes.js";
 
 export {authRouter, messageRouter};

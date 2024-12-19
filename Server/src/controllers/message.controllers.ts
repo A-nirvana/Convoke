@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Message, User } from "../models";
-import { cloud } from "../lib";
-import { Users } from "../models/user.model";
-import { getRecieverSocketId, io } from "../lib/socket";
+import { Message, User } from "../models/index.js";
+import { cloud } from "../lib/index.js";
+import { Users } from "../models/user.model.js";
+import { getRecieverSocketId, io } from "../lib/index.js";
 
 declare global {
     namespace Express {

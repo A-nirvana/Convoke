@@ -3,16 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "npx tsc",
+    "start": "node dist/server.js",
     "dev": "nodemon server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@remix-run/express": "^2.15.1",
     "@types/cors": "^2.8.17",
     "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^2.4.3",
@@ -24,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4",
     "nodemailer": "^6.9.16",
+    "patch-package": "^8.0.0",
     "socket.io": "^4.8.1",
     "typescript": "^5.7.2"
   },

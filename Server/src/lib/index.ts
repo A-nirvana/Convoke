@@ -1,6 +1,6 @@
-import { connectDB } from "./db";
-import { generateToken } from "./token";
-import cloud from "./cloud";
-import { io, app, server } from "./socket";
+import { connectDB } from "./db.js";
+import { generateToken } from "./token.js";
+import cloud from "./cloud.js";
+import { io, app, server, getRecieverSocketId } from "./socket.js";
 
-export {connectDB, generateToken, cloud, io, app, server}
+export {connectDB, generateToken, cloud, io, app, server, getRecieverSocketId}

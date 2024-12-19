@@ -1,12 +1,11 @@
 {
-  "name": "convoke",
+  "name": "root",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd Server && pnpm install && pnpm run build && cd ../Chat && pnpm install && pnpm run build && cd ..",
+    "start": "cd Server && pnpm start"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {},
+  "dependencies": {}
 }

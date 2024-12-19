@@ -1,3 +1,3 @@
-import { protectRoute } from "./auth.middleware";
+import { protectRoute } from "./auth.middleware.js";
 
 export {protectRoute}

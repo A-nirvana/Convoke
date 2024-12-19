@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { protectRoute } from "../middlewares";
-import {  getDms, getAllUsers, getMessages, sendMessage, createDm, rejectDm, acceptDm, getRequests  } from "../controllers";
+import { protectRoute } from "../middlewares/index.js";
+import {  getDms, getAllUsers, getMessages, sendMessage, createDm, rejectDm, acceptDm, getRequests  } from "../controllers/index.js";
 
 const messageRouter = Router();
 
