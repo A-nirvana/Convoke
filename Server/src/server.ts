@@ -22,8 +22,8 @@ app.use(cors({
 
 const PORT = process.env.PORT || 3000;
 
-app.use("/auth", authRouter)
-app.use("/messages", messageRouter)
+app.use("/api/auth", authRouter)
+app.use("/api/messages", messageRouter)
 
 app.use(express.static(path.join(__dirname, "../../Chat/build/client")));
 
