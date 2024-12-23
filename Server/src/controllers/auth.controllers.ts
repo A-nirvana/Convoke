@@ -168,17 +168,17 @@ export const logout = (req: Request, res: Response) => {
 
 export const updateProfile = async (req: Request, res: Response) => {
     try {
-        const { profilePic } = req.body;
+        const { profilePic, contactNumber } = req.body;
         const userID = req.user._id;
 
-        if (!profilePic) {
-            res.status(400).json({ message: "Profile Pic is required" });
+        if (!profilePic && !contactNumber) {
+            res.status(400).json({ message: "Profile Pic or Contact number change is required" });
             return;
         }
 
         const uploaded = await cloud.uploader.upload(profilePic);
         if (uploaded) {
-            const updatedUser = await User.findByIdAndUpdate(userID, { profilePic: uploaded.secure_url }, { new: true });
+            const updatedUser = await User.findByIdAndUpdate(userID, { profilePic: uploaded.secure_url, contactNumber }, { new: true });
             if (updatedUser) {
                 res.status(200).json(updatedUser);
             }

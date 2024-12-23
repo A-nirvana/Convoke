@@ -1,16 +1,10 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect, useNavigate } from "@remix-run/react";
-import { createEmptyContact } from "~/data";
+import { json, redirect, useNavigate } from "@remix-run/react"
 import { useAuthStore } from "store";
 import { Loader } from "lucide-react";
 import Sidebar from "~/components/Sidebar";
 import NoChat from "~/components/NoChat";
 import { useEffect } from "react";
-
-export const action = async () => {
-  const contact = await createEmptyContact();
-  return redirect(`/contacts/${contact.id}/edit`);
-};
 
 
 export const loader = async ({

@@ -7,7 +7,8 @@ import {
   ScrollRestoration,
   useNavigation
 } from "@remix-run/react";
-import { Bounce, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 import tailwindStyles from "~/tailwind.css?url"
 import styles from "./app.css?url"
 import { useAuthStore } from "store/useAuthStore";
@@ -27,8 +28,8 @@ export const links: LinksFunction = () => [
 
 
 export default function App() {
-  const { checkAuth, authUser } = useAuthStore();
-  const {getDms} = useChatStore();
+  const { checkAuth, authUser, isCheckingAuth } = useAuthStore();
+  const {getDms, getUsers, getRequests} = useChatStore();
   const navigation = useNavigation()
   useEffect(() => {
     checkAuth()
@@ -37,8 +38,12 @@ export default function App() {
 
   useEffect(() => {
     if (authUser)
+    {
       getDms();
-  }, [getDms, authUser])
+      getUsers();
+      getRequests();
+    }
+  }, [getDms, authUser, getUsers, getRequests])
 
   return (
     <html lang="en">
@@ -51,14 +56,14 @@ export default function App() {
       <body>
         <div
           className={
-            navigation.state === "loading" ? "loading" : ""
+            (navigation.state === "loading" || isCheckingAuth) ? "loading" : ""
           }
         >
           <Outlet />
         </div>
         <ScrollRestoration />
         <Scripts />
-        <ToastContainer position='top-center' transition={Bounce} />
+        <ToastContainer position='top-center' limit={3}/>
       </body>
     </html>
   );

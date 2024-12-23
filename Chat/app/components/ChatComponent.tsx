@@ -108,7 +108,8 @@ export default function ChatComponent() {
                 }}><Paperclip /></label>
                 <div className="hover:text-[#777] duration-100 cursor-pointer"><Smile /></div>
                 <div className="hover:text-[#fff] hover:bg-[#3992ff] duration-300 p-1 rounded-full cursor-pointer"><Mic /></div>
-                <input name="text" placeholder="Type a message" className="w-4/5 text-[1.1rem] p-[1rem_2rem] rounded-none focus:outline-slate-700" />
+                <input name="text" placeholder="Type a message" autoComplete="off" 
+                className="w-4/5 text-[1.1rem] p-[1rem_2rem] rounded-none focus:outline-slate-700" />
                 <button type="submit" className="hover:text-[#777] duration-100 cursor-pointer"><Send /></button>
             </form>
         </div>

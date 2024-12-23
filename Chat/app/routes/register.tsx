@@ -1,5 +1,4 @@
 import {toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { useState } from "react";
 import { Form, Link, redirect, useLoaderData, useNavigate } from '@remix-run/react';
 import { json, LoaderFunctionArgs } from '@remix-run/node';

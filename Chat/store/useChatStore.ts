@@ -45,6 +45,7 @@ interface ChatStoreState {
     isMessagesLoading: boolean;
     isDmsLoading: boolean;
     isRequestsLoading: boolean
+    isSearching : boolean
 
     // Actions
     getUsers: () => Promise<void>;
@@ -59,6 +60,7 @@ interface ChatStoreState {
     subscribeToMessages: () => void;
     unsubscribeFromMessages: () => void;
     setSelectedUser: (user: User) => void;
+    setIsSearching: (val : boolean)=>void
 }
 
 // Zustand Store
@@ -72,6 +74,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     isMessagesLoading: false,
     isDmsLoading: false,
     isRequestsLoading: false,
+    isSearching: false,
 
     // Get all users except logged-in user
     getUsers: async () => {
@@ -102,8 +105,8 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     getRequests: async () => {
         set({ isRequestsLoading: true });
         try {
-            const res = await axiosInstance.get("/messages/requests");
-            set({ requests: res.data.requests });
+            const res = await axiosInstance.get("/messages/request");
+            set({ requests: res.data.requestList });
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to load requests");
         } finally {
@@ -114,7 +117,7 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
   // Create DM request
   createDm: async (dmId: string) => {
         try {
-            await axiosInstance.post("/messages/create", { dmId });
+            await axiosInstance.put("/messages/create", { dmId });
             toast.success("DM request sent successfully");
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to send DM request");
@@ -124,8 +127,10 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     // Accept DM request
     acceptDm: async (dmId: string) => {
         try {
-            await axiosInstance.post("/messages/accept", { dmId });
+            await axiosInstance.put("/messages/accept", { dmId });
             toast.success("DM request accepted");
+            const filter = get().requests.filter((req)=>req._id !== dmId);
+            set({requests:filter})
             get().getDms();
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to accept DM request");
@@ -135,8 +140,10 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     // Reject DM request
     rejectDm: async (dmId: string) => {
         try {
-            await axiosInstance.post("/messages/reject", { dmId });
+            await axiosInstance.put("/messages/reject", { dmId });
             toast.success("DM request rejected");
+            const filter = get().requests.filter((req)=>req._id !== dmId);
+            set({requests:filter})
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to reject DM request");
         }
@@ -199,4 +206,5 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     },
 
     setSelectedUser: (user: User) => set({ selectedUser: user }),
+    setIsSearching: (val: boolean)=> set({isSearching:val})
 }));

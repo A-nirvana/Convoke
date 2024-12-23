@@ -3,6 +3,7 @@ import { Message, User } from "../models/index.js";
 import { cloud } from "../lib/index.js";
 import { Users } from "../models/user.model.js";
 import { getRecieverSocketId, io } from "../lib/index.js";
+import mongoose from "mongoose";
 
 declare global {
     namespace Express {
@@ -41,11 +42,10 @@ export const getRequests = async (req:Request, res:Response)=>{
     try{
         const requests  = req.user.requests;
         let requestList = <any>[];
-        requests.forEach(async (request)=>{
-            const requestData = await User.findById(request).select("-password -requests -dms -verified");
-            requestList.push(requestData);
+        for (const dm of requests) {
+            const dmData = await User.findById(dm).select("-password -requests -dms -verified");
+            requestList.push(dmData);
         }
-        );
         res.status(200).json({requestList});
     }catch(error){
         res.status(500).json({message:"Internal Server Error"});
@@ -67,8 +67,9 @@ export const acceptDm = async (req:Request, res:Response)=>{
     try{
         const {dmId} = req.body;
         const user = req.user;
-        await User.findByIdAndUpdate(dmId, {$push:{dms:user._id}, $pull:{requests:user._id}});
-        await User.findByIdAndUpdate(user._id, {$push:{dms:dmId}});
+        const updatedReq = user.requests.filter((req)=>req != dmId)
+        await User.findByIdAndUpdate(user._id, {$push:{dms:dmId}, $set:{requests:updatedReq}});
+        if(user._id != dmId)await User.findByIdAndUpdate(dmId, {$push:{dms:user._id}});
         res.status(200).json({message:"DM request accepted"});
     }catch(error){
         res.status(500).json({message:"Internal Server Error"});
@@ -79,7 +80,8 @@ export const rejectDm = async (req:Request, res:Response)=>{
     try{
         const {dmId} = req.body;
         const user = req.user;
-        await User.findByIdAndUpdate(dmId, {$pull:{requests:user._id}});
+        const updatedReq = user.requests.filter((req)=>req != dmId)
+        await User.findByIdAndUpdate(user._id, {$set:{requests:updatedReq}});
         res.status(200).json({message:"DM request rejected"});
     }catch(error){
         res.status(500).json({message:"Internal Server Error"});

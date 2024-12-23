@@ -6,11 +6,11 @@ const messageRouter = Router();
 
 messageRouter.get("/users", protectRoute, getAllUsers);
 messageRouter.get("/dms", protectRoute, getDms);
+messageRouter.get("/request", protectRoute, getRequests);
 messageRouter.get("/:id", protectRoute, getMessages);
 messageRouter.post("/:id", protectRoute, sendMessage);
-messageRouter.get("/request", protectRoute, getRequests);
-messageRouter.post("/create", protectRoute, createDm);
-messageRouter.post("/accept", protectRoute, acceptDm);
-messageRouter.post("/reject", protectRoute, rejectDm);
+messageRouter.put("/create", protectRoute, createDm);
+messageRouter.put("/accept", protectRoute, acceptDm);
+messageRouter.put("/reject", protectRoute, rejectDm);
 
 export { messageRouter };
