@@ -25,20 +25,20 @@ const PORT = process.env.PORT || 3000;
 app.use("/api/auth", authRouter)
 app.use("/api/messages", messageRouter)
 
-// app.use(express.static(path.join(__dirname, "../../Chat/build/client")));
+app.use(express.static(path.join(__dirname, "../../Chat/build/client")));
 
-// // Handle all other requests using Remix
-// (async()=>{
-//     const buildPath = pathToFileURL(path.join(__dirname, "../../Chat/build/server/index.js")).href;
-//     const build = await import(buildPath);
-//     app.all(
-//         "*",
-//         createRequestHandler({
-//             build, // Use Remix server build
-//             mode: process.env.NODE_ENV, // Pass the environment mode
-//         })
-//     );
-// })()
+// Handle all other requests using Remix
+(async()=>{
+    const buildPath = pathToFileURL(path.join(__dirname, "../../Chat/build/server/index.js")).href;
+    const build = await import(buildPath);
+    app.all(
+        "*",
+        createRequestHandler({
+            build, // Use Remix server build
+            mode: process.env.NODE_ENV, // Pass the environment mode
+        })
+    );
+})()
 
 server.listen(PORT, ()=>{
     console.log(`⚡️[server]: Server is running on PORT: ${PORT}`);
