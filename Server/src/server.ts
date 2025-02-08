@@ -5,6 +5,7 @@ import cors from "cors"
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createRequestHandler } from "@remix-run/express";
+import multer from "multer"
 import { authRouter } from "./routes/auth.routes.js";
 import { messageRouter } from "./routes/message.routes.js";
 import { app, connectDB, server } from "./lib/index.js";
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use("/api/auth", authRouter)
 app.use("/api/messages", messageRouter)
+
 
 app.use(express.static(path.join(__dirname, "../../Chat/build/client")));
 

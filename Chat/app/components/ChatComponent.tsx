@@ -1,6 +1,6 @@
 import { Ban, Camera, File, Mic, Paperclip, Phone, Send, Smile, Video } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useChatStore, MessageData, useAuthStore } from "store";
+import { useChatStore, useAuthStore } from "store";
 
 export default function ChatComponent() {
     const { selectedUser, getMessages, sendMessage, messages, isMessagesLoading, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
@@ -11,47 +11,21 @@ export default function ChatComponent() {
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
-        const messageData: MessageData = {};
-        const formData = new FormData(e.currentTarget);
-
-        // Handle text field
-        const text = formData.get("text");
-        if (text && typeof text === "string") messageData.text = text;
-
-        // Helper function to handle FileReader as a Promise
-        const readFileAsDataURL = (file: File) =>
-            new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (typeof reader.result === "string") resolve(reader.result);
-                    else reject("File reading failed");
-                };
-                reader.onerror = (err) => reject(err);
-                reader.readAsDataURL(file);
-            });
-
-        // Handle image
-        const img = formData.get("image");
-        if (img && typeof img == "object" && img.name && img.type) {
-            messageData.image = await readFileAsDataURL(img);
+        const formData = new FormData(form);
+    
+        // Check if text is empty and no files are selected
+        const text = (formData.get("text") as string)?.trim();
+        
+        const hasFile = ["image", "video", "audio", "file"].some(field => {
+            const input = form.querySelector(`[name="${field}"]`) as HTMLInputElement;
+            return input?.files && input.files.length > 0;
+        });
+    
+        if (!text && !hasFile) return;
+    
+        if (selectedUser?._id) {
+            await sendMessage(selectedUser._id, formData);
         }
-
-        // Handle file
-        const file = formData.get("file");
-        if (file && typeof file == "object" && file.name && file.type) {
-            messageData.file = await readFileAsDataURL(file);
-        }
-
-        // Handle video
-        const video = formData.get("video");
-        if (video && typeof video == "object" && video.name && video.type) {
-            messageData.video = await readFileAsDataURL(video);
-        }
-
-        // Call sendMessage after all file reading is complete
-        if (selectedUser?._id) await sendMessage(selectedUser._id, messageData);
-
-        // Clear the form
         form.reset();
     };
 

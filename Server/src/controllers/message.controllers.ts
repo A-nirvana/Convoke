@@ -106,44 +106,32 @@ export const getMessages = async (req:Request, res:Response)=>{
     }
 }
 
-export const sendMessage = async (req:Request, res:Response)=>{
-    try{
-        const {text, image, video, audio, file} = req.body;
-        const {id:recieverId} = req.params;
-
+export const sendMessage = async (req: Request, res: Response) => {
+    try {
+        const { text, image, video, audio, file } = req.body; // These now contain URLs
+        const { id: recieverId } = req.params;
         const senderId = req.user._id;
-
-        let fileUrl, imageUrl, videoUrl, audioUrl, xUrl;
-        if(image || video || audio || file){
-            fileUrl = image || video || audio || file;
-            const uploadResponse = await cloud.uploader.upload(fileUrl);
-            fileUrl = uploadResponse.url;
-        }
-        if(image) imageUrl =fileUrl;
-        if(video) videoUrl = fileUrl;
-        if(audio) audioUrl = fileUrl
-        if(file) xUrl = fileUrl;
 
         const newMessage = new Message({
             senderId,
             recieverId,
             text,
-            image: imageUrl,
-            video: videoUrl,
-            audio : audioUrl,
-            file : xUrl
+            image, // Already a URL
+            video, // Already a URL
+            audio, // Already a URL
+            file   // Already a URL
         });
 
         const recieverSocketId = getRecieverSocketId(recieverId);
-        if(recieverSocketId){
+        if (recieverSocketId) {
             io.to(recieverSocketId).emit("newMessage", newMessage);
         }
 
         await newMessage.save();
 
-        res.status(201).json({newMessage});
+        res.status(201).json({ newMessage });
 
-    }catch(error){
-        res.status(500).json({message:"Internal Server Error"});
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};

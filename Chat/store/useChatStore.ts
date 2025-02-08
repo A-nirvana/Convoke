@@ -54,7 +54,7 @@ interface ChatStoreState {
     acceptDm: (dmId: string) => Promise<void>;
     rejectDm: (dmId: string) => Promise<void>;
     getMessages: (userId: string) => Promise<void>;
-    sendMessage: (userId: string, messageData: MessageData) => Promise<void>;
+    sendMessage: (userId: string, messageData: FormData) => Promise<void>;
     getRequests: () => Promise<void>;
     getUser: (userId: string) => Promise<void>;
     subscribeToMessages: () => void;
@@ -163,15 +163,18 @@ export const useChatStore = create<ChatStoreState>((set, get) => ({
     },
 
     // Send a message
-    sendMessage: async (userId: string, messageData: MessageData) => {
+    sendMessage: async (userId: string, messageData: FormData) => {
         const { messages } = get();
         try {
-            const res = await axiosInstance.post(`/messages/${userId}`, messageData);
+            const res = await axiosInstance.post(`/messages/${userId}`, messageData, {
+                headers: { "Content-Type": "multipart/form-data" }, // Ensure file upload works
+            });
             set({ messages: [...messages, res.data.newMessage] });
         } catch (error: any) {
             toast.error(error.response?.data?.message || "Failed to send message");
         }
     },
+    
 
     getUser: async(userId: string)=>{
         try{
