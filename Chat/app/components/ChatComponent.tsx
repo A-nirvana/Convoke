@@ -21,7 +21,7 @@ export default function ChatComponent() {
             return input?.files && input.files.length > 0;
         });
     
-        if (!text && !hasFile) return;
+        if (!(text || hasFile)) return;
     
         if (selectedUser?._id) {
             await sendMessage(selectedUser._id, formData);
