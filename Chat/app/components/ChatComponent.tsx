@@ -1,80 +1,40 @@
 import { useNavigate } from "@remix-run/react";
 import { Ban, Camera, File, Mic, Paperclip, Phone, Send, Smile, Video } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useChatStore, useAuthStore, useSocketStore } from "store";
-import { v4 as uuidv4 } from 'uuid';
-import CallModal from "./modal";
+import { useChatStore, useAuthStore} from "store";
 
 // const socket = io('http://localhost:3000');
 
 export default function ChatComponent() {
     const { selectedUser, getMessages, sendMessage, messages, isMessagesLoading, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
     const { authUser, socket } = useAuthStore();
-
-    const [incomingCall, setIncomingCall] = useState<{ fromUserId: string } | null>(null);
+    const [isOpen, setIsOpen] = useState(false)
     const [calling, setCalling] = useState(false);
-    const navigate = useNavigate();
     const [disp, setDisp] = useState(false);
-    const [isRinging, setIsRinging] = useState(false);
-    const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
 
     const endRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         if (!socket) return;
-        // 1️⃣ Listen for incoming call
-        socket.on('incoming-call', ({ fromUserId }) => {
-            console.log("coming")
-            setIncomingCall({ fromUserId });
-        });
-
-        // 2️⃣ Caller: reaction to accept/reject
-        socket.on('call-accepted', ({ roomId }) => {
-            // join the room and navigate
-            navigate(`/room/${roomId}`);
-        });
         socket.on('call-rejected', () => {
             alert('User rejected your call.');
             setCalling(false);
         });
 
         return () => {
-            socket?.off('incoming-call');
-            socket?.off('call-accepted');
             socket?.off('call-rejected');
         };
-    }, [socket, navigate]);
+    }, [socket]);
 
     const startCall = () => {
         if (calling) return;
         if (!selectedUser || !authUser) return;
-        console.log("Starting call...");    
+        console.log("Starting call...");
         setCalling(true);
         console.log(socket)
         socket?.emit('call-user', {
             toUserId: selectedUser._id,
             fromUserId: authUser._id
         });
-    };
-
-    const acceptCall = () => {
-        if (!incomingCall || !authUser) return;
-        const roomId = uuidv4();
-        // tell server you accepted, and provide roomId for both sides
-        socket?.emit('accept-call', {
-            toUserId: incomingCall.fromUserId,
-            roomId
-        });
-        // navigate into the room too
-        navigate(`/room/${roomId}`);
-    };
-
-    const rejectCall = () => {
-        if (!incomingCall) return;
-        socket?.emit('reject-call', {
-            toUserId: incomingCall.fromUserId
-        });
-        setIncomingCall(null);
     };
 
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -95,7 +55,7 @@ export default function ChatComponent() {
 
     useEffect(() => {
         if (selectedUser?._id) getMessages(selectedUser?._id)
-        
+
         subscribeToMessages()
 
         return () => unsubscribeFromMessages()
@@ -122,7 +82,7 @@ export default function ChatComponent() {
                     <button className="hover:text-white cursor-pointer py-2 px-4 border-r-2 border-[#aaa] hover:bg-green-500 duration-200">
                         <Video />
                     </button>
-                    <button className="hover:text-white cursor-pointer py-2 px-4 rounded-r-3xl text-red-600 hover:bg-red-600 duration-200">
+                    <button onClick={() => { setIsOpen(!isOpen) }} className="hover:text-white cursor-pointer py-2 px-4 rounded-r-3xl text-red-600 hover:bg-red-600 duration-200">
                         <Ban />
                     </button>
                 </div>
@@ -157,15 +117,6 @@ export default function ChatComponent() {
                 <input name="text" placeholder="Type a message" autoComplete="off" className="w-4/5 text-[1.1rem] p-[1rem_2rem] rounded-none focus:outline-slate-700" />
                 <button type="submit" className="hover:text-[#777] duration-100 cursor-pointer"><Send /></button>
             </form>
-
-            {incomingCall && (
-                <div className="incoming-modal">
-                    <p>{incomingCall.fromUserId} is calling you.</p>
-                    <button onClick={acceptCall}>Accept</button>
-                    <button onClick={rejectCall}>Reject</button>
-                </div>
-            )}
-            <CallModal/>
         </div>
     );
 }

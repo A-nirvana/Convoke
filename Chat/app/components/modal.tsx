@@ -1,62 +1,32 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/modal"
-import { Button } from "@heroui/button";
+import { Phone } from "lucide-react";
 
-export default function App() {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+interface modal {
+  isOpen: boolean;
+  setIsOpen: Function;
+  accept: Function;
+  reject: Function;
+  caller?: string
+}
 
+export default function CallModal({ isOpen, setIsOpen, accept, reject, caller }: modal) {
   return (
-    <>
-      <Button onPress={onOpen}>Open Modal</Button>
-      <Modal
-        isDismissable={false}
-        isKeyboardDismissDisabled={true}
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
-        size="md"
-        placement="center"
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
-              <ModalBody>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non
-                  risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor
-                  quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pulvinar risus non
-                  risus hendrerit venenatis. Pellentesque sit amet hendrerit risus, sed porttitor
-                  quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit dolor
-                  adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                  officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et mollit incididunt
-                  nisi consectetur esse laborum eiusmod pariatur proident Lorem eiusmod et. Culpa
-                  deserunt nostrud ad veniam.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
-  );
+    <div className={`fixed flex justify-center overflow-hidden items-center inset-0 transition-all duration-150 w-screen h-screen bg-[#0a0a0a11] ease-out ${isOpen ? "opacity-100 z-50" : "-z-50 opacity-0 pointer-events-none"}`}>
+      <div className="bg-white rounded-md flex flex-col items-center px-8 py-4">
+        <img src="/images/logo.svg" className="h-20 rounded-full border" />
+        <p>{caller} is calling</p>
+        <div className="flex gap-8 mt-8">
+          <Phone onClick={() => {
+            setIsOpen(false)
+            accept()
+          }}
+            className="bg-green-400 animate-pulse rounded-full h-16 w-16 p-4 cursor-pointer" />
+          <Phone onClick={() => {
+            setIsOpen(false)
+            reject()
+          }}
+            className="bg-red-400 animate-pulse rounded-full h-16 w-16 p-4 cursor-pointer" />
+        </div>
+      </div>
+    </div>
+  )
 }

@@ -11,13 +11,10 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@heroui/button": "^2.2.19",
-    "@heroui/modal": "^2.2.16",
     "@remix-run/node": "^2.15.1",
     "@remix-run/react": "^2.15.1",
     "@remix-run/serve": "^2.15.1",
     "axios": "^1.7.9",
-    "framer-motion": "^12.11.0",
     "heroui-cli": "^1.2.3",
     "isbot": "^4.1.0",
     "lucide-react": "^0.468.0",
