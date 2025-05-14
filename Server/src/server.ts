@@ -5,7 +5,6 @@ import cors from "cors"
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createRequestHandler } from "@remix-run/express";
-import multer from "multer"
 import { authRouter } from "./routes/auth.routes.js";
 import { messageRouter } from "./routes/message.routes.js";
 import { app, connectDB, server } from "./lib/index.js";
@@ -18,7 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     credentials: true,
-    origin: process.env.CLIENT_URL
+    origin: process.env.CLIENT_URL || "http://localhost:3000"
 }))
 
 const PORT = process.env.PORT || 3000;

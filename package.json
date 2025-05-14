@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "cd Server && pnpm install && pnpm run build && cd ../Chat && pnpm install && pnpm run build && cd ..",
-    "start": "cd Server && pnpm start"
+    "start": "cd Server && pnpm start",
+    "in" : "cd Server && pnpm install && cd ../Chat && pnpm install && cd .."
   },
   "devDependencies": {},
   "dependencies": {}

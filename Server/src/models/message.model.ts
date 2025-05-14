@@ -9,6 +9,8 @@ export interface Messages extends Document{
     audio: string,
     file: string,
     createdAt: Date,
+    IncomingCall?: boolean,
+    OutgoingCall?: boolean
 }
 
 const messageSchema = new mongoose.Schema({
@@ -36,6 +38,14 @@ const messageSchema = new mongoose.Schema({
     },
     file:{
         type:String
+    },
+    IncomingCall:{
+        type:Boolean,
+        default:false
+    },
+    OutgoingCall:{
+        type:Boolean,
+        default:false
     },
     createdAt:{
         type:Date,

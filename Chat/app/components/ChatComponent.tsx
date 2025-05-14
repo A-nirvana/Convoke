@@ -1,31 +1,95 @@
+import { useNavigate } from "@remix-run/react";
 import { Ban, Camera, File, Mic, Paperclip, Phone, Send, Smile, Video } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useChatStore, useAuthStore } from "store";
+import { useChatStore, useAuthStore, useSocketStore } from "store";
+import { v4 as uuidv4 } from 'uuid';
+import CallModal from "./modal";
+
+// const socket = io('http://localhost:3000');
 
 export default function ChatComponent() {
     const { selectedUser, getMessages, sendMessage, messages, isMessagesLoading, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
-    const { authUser } = useAuthStore();
+    const { authUser, socket } = useAuthStore();
+
+    const [incomingCall, setIncomingCall] = useState<{ fromUserId: string } | null>(null);
+    const [calling, setCalling] = useState(false);
+    const navigate = useNavigate();
     const [disp, setDisp] = useState(false);
-    const endRef = useRef<HTMLDivElement>(null)
+    const [isRinging, setIsRinging] = useState(false);
+    const [peerConnection, setPeerConnection] = useState<RTCPeerConnection | null>(null);
+
+    const endRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!socket) return;
+        // 1️⃣ Listen for incoming call
+        socket.on('incoming-call', ({ fromUserId }) => {
+            console.log("coming")
+            setIncomingCall({ fromUserId });
+        });
+
+        // 2️⃣ Caller: reaction to accept/reject
+        socket.on('call-accepted', ({ roomId }) => {
+            // join the room and navigate
+            navigate(`/room/${roomId}`);
+        });
+        socket.on('call-rejected', () => {
+            alert('User rejected your call.');
+            setCalling(false);
+        });
+
+        return () => {
+            socket?.off('incoming-call');
+            socket?.off('call-accepted');
+            socket?.off('call-rejected');
+        };
+    }, [socket, navigate]);
+
+    const startCall = () => {
+        if (calling) return;
+        if (!selectedUser || !authUser) return;
+        console.log("Starting call...");    
+        setCalling(true);
+        console.log(socket)
+        socket?.emit('call-user', {
+            toUserId: selectedUser._id,
+            fromUserId: authUser._id
+        });
+    };
+
+    const acceptCall = () => {
+        if (!incomingCall || !authUser) return;
+        const roomId = uuidv4();
+        // tell server you accepted, and provide roomId for both sides
+        socket?.emit('accept-call', {
+            toUserId: incomingCall.fromUserId,
+            roomId
+        });
+        // navigate into the room too
+        navigate(`/room/${roomId}`);
+    };
+
+    const rejectCall = () => {
+        if (!incomingCall) return;
+        socket?.emit('reject-call', {
+            toUserId: incomingCall.fromUserId
+        });
+        setIncomingCall(null);
+    };
 
     const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
-    
-        // Check if text is empty and no files are selected
         const text = (formData.get("text") as string)?.trim();
-        
+
         const hasFile = ["image", "video", "audio", "file"].some(field => {
             const input = form.querySelector(`[name="${field}"]`) as HTMLInputElement;
             return input?.files && input.files.length > 0;
         });
-    
+
         if (!(text || hasFile)) return;
-    
-        if (selectedUser?._id) {
-            await sendMessage(selectedUser._id, formData);
-        }
+        if (selectedUser?._id) await sendMessage(selectedUser._id, formData);
         form.reset();
     };
 
@@ -43,6 +107,7 @@ export default function ChatComponent() {
         }
     }, [messages])
 
+
     return (
         <div className="h-screen w-[80vw] flex flex-col items-center min-h-screen relative">
             <div className="flex justify-between w-full items-center px-8">
@@ -51,41 +116,56 @@ export default function ChatComponent() {
                     <h1 className="text-2xl font-semibold hidden md:block">{selectedUser?.name}</h1>
                 </div>
                 <div className="flex items-center h-max rounded-3xl border-2 border-[#aaa]">
-                    <div className="hover:text-white cursor-pointer rounded-l-3xl py-2 px-4 border-r-2 border-[#aaa] hover:bg-green-500 duration-200"><Phone /></div>
-                    <div className="hover:text-white cursor-pointer py-2 px-4 border-r-2 border-[#aaa] hover:bg-green-500 duration-200"><Video /></div>
-                    <div className="hover:text-white cursor-pointer py-2 px-4 rounded-r-3xl text-red-600 hover:bg-red-600 duration-200"><Ban /></div>
+                    <button onClick={startCall} className="hover:text-white cursor-pointer rounded-l-3xl py-2 px-4 border-r-2 border-[#aaa] hover:bg-green-500 duration-200">
+                        <Phone />
+                    </button>
+                    <button className="hover:text-white cursor-pointer py-2 px-4 border-r-2 border-[#aaa] hover:bg-green-500 duration-200">
+                        <Video />
+                    </button>
+                    <button className="hover:text-white cursor-pointer py-2 px-4 rounded-r-3xl text-red-600 hover:bg-red-600 duration-200">
+                        <Ban />
+                    </button>
                 </div>
             </div>
+
             <div className="flex-1 w-full bg-slate-700 overflow-y-scroll px-6">
                 {messages.map((message) => (
-                    <div key={message._id} className={`${isMessagesLoading ? "opacity-50" : ""} flex items-center gap-4 ${message.senderId != authUser?._id ? "justify-start" : "justify-end"} p-4`}>
-                        <div className={`bg-white p-4 rounded-xl max-w-[60vw] md:max-w-[30vw] ${message.senderId != authUser?._id ? "rounded-bl-none" : "rounded-br-none"}`}>
+                    <div key={message._id} className={`${isMessagesLoading ? "opacity-50" : ""} flex items-center gap-4 ${message.senderId !== authUser?._id ? "justify-start" : "justify-end"} p-4`}>
+                        <div className={`bg-white p-4 rounded-xl max-w-[60vw] md:max-w-[30vw] ${message.senderId !== authUser?._id ? "rounded-bl-none" : "rounded-br-none"}`}>
                             {message.image && <img src={message.image} alt="image" />}
                             {message.video && <video src={message.video} controls></video>}
                             {message.file && <a href={message.file} download>Download File</a>}
                             {message.text && <p>{message.text}</p>}
                         </div>
-                    </div>))}
+                    </div>
+                ))}
                 <div ref={endRef}></div>
             </div>
+
             <form onSubmit={handleSendMessage} className="mt-auto w-[80vw] bg-[#f7f7f7] flex items-center gap-6 border-t-2 border-[#eee] relative z-20">
                 <div className={`absolute bg-white -z-20 flex-wrap left-0 border-2 border-[#aaa] flex gap-6 rounded-xl p-6 ${disp ? 'opacity-100 bottom-full' : 'opacity-0 bottom-0'} duration-300`}>
                     <input name="file" type="file" id="upload-file" className="hidden" />
                     <label htmlFor="upload-file" className="cursor-pointer flex flex-col items-center"><File /><p>File</p></label>
-                    <input name="image" type="file" id="upload-image" accept='image/*' className="hidden" />
+                    <input name="image" type="file" id="upload-image" accept="image/*" className="hidden" />
                     <label htmlFor="upload-image" className="cursor-pointer flex flex-col items-center"><Camera /><p>Photo</p></label>
                     <input name="video" type="file" id="upload-vid" className="hidden" />
                     <label htmlFor="upload-vid" className="cursor-pointer flex flex-col items-center"><Video /><p>Video</p></label>
                 </div>
-                <label className={`cursor-pointer ml-4 ${disp ? "text-[#3992ff]" : ""}`} onClick={() => {
-                    setDisp(!disp)
-                }}><Paperclip /></label>
+                <label className={`cursor-pointer ml-4 ${disp ? "text-[#3992ff]" : ""}`} onClick={() => setDisp(!disp)}><Paperclip /></label>
                 <div className="hover:text-[#777] duration-100 cursor-pointer"><Smile /></div>
                 <div className="hover:text-[#fff] hover:bg-[#3992ff] duration-300 p-1 rounded-full cursor-pointer"><Mic /></div>
-                <input name="text" placeholder="Type a message" autoComplete="off" 
-                className="w-4/5 text-[1.1rem] p-[1rem_2rem] rounded-none focus:outline-slate-700" />
+                <input name="text" placeholder="Type a message" autoComplete="off" className="w-4/5 text-[1.1rem] p-[1rem_2rem] rounded-none focus:outline-slate-700" />
                 <button type="submit" className="hover:text-[#777] duration-100 cursor-pointer"><Send /></button>
             </form>
+
+            {incomingCall && (
+                <div className="incoming-modal">
+                    <p>{incomingCall.fromUserId} is calling you.</p>
+                    <button onClick={acceptCall}>Accept</button>
+                    <button onClick={rejectCall}>Reject</button>
+                </div>
+            )}
+            <CallModal/>
         </div>
-    )
+    );
 }

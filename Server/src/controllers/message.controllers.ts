@@ -108,7 +108,7 @@ export const getMessages = async (req:Request, res:Response)=>{
 
 export const sendMessage = async (req: Request, res: Response) => {
     try {
-        const { text, image, video, audio, file } = req.body; // These now contain URLs
+        const { text, image, video, audio, file } = req.body;
         const { id: recieverId } = req.params;
         const senderId = req.user._id;
 
@@ -116,10 +116,10 @@ export const sendMessage = async (req: Request, res: Response) => {
             senderId,
             recieverId,
             text,
-            image, // Already a URL
-            video, // Already a URL
-            audio, // Already a URL
-            file   // Already a URL
+            image,
+            video,
+            audio,
+            file,
         });
 
         const recieverSocketId = getRecieverSocketId(recieverId);
