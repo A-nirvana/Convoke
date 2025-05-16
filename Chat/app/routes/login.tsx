@@ -56,6 +56,9 @@ export default function Signup() {
                                 }, 1500);
                             }
                         } catch (e: any) {
+                            if (e.response.status === 400) {
+                                toast.error("Invalid Credentials")
+                            }
                             if (e.response.status === 401) {
                                 toast.error("Invalid Credentials")
                             }
