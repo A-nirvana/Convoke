@@ -3,11 +3,11 @@ import mongoose, { Document} from "mongoose";
 export interface Messages extends Document{
     senderId: mongoose.Schema.Types.ObjectId,
     recieverId: mongoose.Schema.Types.ObjectId,
-    text: string,
-    image: string,
-    video: string,
-    audio: string,
-    file: string,
+    text?: string,
+    image?: string,
+    video?: string,
+    audio?: string,
+    file?: string,
     createdAt: Date,
     IncomingCall?: boolean,
     OutgoingCall?: boolean
@@ -25,19 +25,24 @@ const messageSchema = new mongoose.Schema({
         required: true
     },
     text:{
-        type:String
+        type:String,
+        required: false
     },
     image:{
-        type:String
+        type:String,
+        required: false
     },
     video : {
-        type:String
+        type:String,
+        required: false
     },
     audio:{
-        type:String
+        type:String,
+        required: false
     },
     file:{
-        type:String
+        type:String,
+        required: false
     },
     IncomingCall:{
         type:Boolean,

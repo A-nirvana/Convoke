@@ -1,7 +1,7 @@
 import { useNavigate } from "@remix-run/react";
 import { Ban, Camera, File, Mic, Paperclip, Phone, Send, Smile, Video } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useChatStore, useAuthStore} from "store";
+import { useChatStore, useAuthStore } from "store";
 
 // const socket = io('http://localhost:3000');
 
@@ -43,9 +43,10 @@ export default function ChatComponent() {
         const formData = new FormData(form);
         const text = (formData.get("text") as string)?.trim();
 
-        const hasFile = ["image", "video", "audio", "file"].some(field => {
-            const input = form.querySelector(`[name="${field}"]`) as HTMLInputElement;
-            return input?.files && input.files.length > 0;
+        const fields = ["image", "video", "file"]; // you don’t have "audio"
+        const hasFile = fields.some((field) => {
+            const input = form.elements.namedItem(field) as HTMLInputElement | null;
+            return input?.files?.length;
         });
 
         if (!(text || hasFile)) return;
