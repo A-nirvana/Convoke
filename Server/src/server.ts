@@ -35,8 +35,8 @@ app.use(express.static(path.join(__dirname, "../../Chat/build/client")));
     app.all(
         "*",
         createRequestHandler({
-            build, // Use Remix server build
-            mode: process.env.NODE_ENV, // Pass the environment mode
+            build,
+            mode: process.env.NODE_ENV,
         })
     );
 })()

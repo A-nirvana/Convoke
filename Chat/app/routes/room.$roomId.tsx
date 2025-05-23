@@ -11,7 +11,7 @@ import { Phone } from "lucide-react";
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.roomId, "Missing roomId");
   return json({ roomId: params.roomId,
-    TURN_URL: process.env.TURN_URL_UDP,
+    TURN_URL: process.env.TURN_URL,
     TURN_USERNAME: process.env.TURN_USERNAME,
     TURN_PASSWORD: process.env.TURN_PASSWORD });
 };
